@@ -1,0 +1,63 @@
+:root {
+  --bg: #ffffff;
+  --fg: #121212;
+
+  background: var(--bg);
+  color: var(--fg);
+  font-family: sans-serif;
+  font-size: 16px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+header,
+footer {
+  padding: 1.66rem 0;
+}
+
+button {
+  font-size: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+dialog {
+  border: none;
+}
+
+input {
+  background: none;
+  border: none;
+}
+
+.btn {
+  padding: 0.55rem 1rem;
+  transition: all 0.325s ease-in-out;
+}
+
+.btn:hover {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.btn--accent {
+  background: var(--fg);
+  color: var(--bg);
+}
+
+.btn--accent:hover {
+  background: var(--bg);
+  color: var(--fg);
+}

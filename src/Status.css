@@ -1,0 +1,12 @@
+.status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.status-header {
+  font-weight: 700;
+  padding: 0.325rem 0;
+}
+
+

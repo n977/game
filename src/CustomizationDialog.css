@@ -1,0 +1,21 @@
+.modal {
+  min-width: 640px;
+  margin: auto;
+  padding: 0 1.66rem;
+}
+
+.modal-header {
+  padding: 1.66rem 0;
+}
+
+.modal-field {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.modal-btn-group {
+  display: flex;
+  flex-direction: column;
+  padding: 1.66rem 0;
+}
