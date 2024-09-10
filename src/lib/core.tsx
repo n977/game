@@ -14,16 +14,16 @@ export enum Orientation {
 }
 
 export class Entity {
-  level: Level;
-  pos: Pos;
-  velocity: Vector2d;
-  size: number;
-  color: string;
-  id: string;
-  exists: boolean;
-  moveSpeed: number;
+  protected level: Level;
+  public readonly id: string;
+  public pos: Pos;
+  public size: number;
+  public velocity: Vector2d;
+  public color: string;
+  public moveSpeed: number;
+  public exists: boolean;
 
-  constructor(
+  public constructor(
     level: Level,
     pos: Pos,
     velocity: Vector2d,
@@ -44,7 +44,7 @@ export class Entity {
     this.moveSpeed = moveSpeed;
   }
 
-  tick(): void {
+  public tick(): void {
     this.level.ctx.beginPath();
     this.level.ctx.arc(
       this.pos.x,
@@ -61,7 +61,7 @@ export class Entity {
     this.pos.y += this.velocity.y * this.moveSpeed;
   }
 
-  dead(): boolean {
+  public dead(): boolean {
     const dx = this.level.ctx.canvas.clientWidth - this.pos.x;
     const dy = this.level.ctx.canvas.clientHeight - this.pos.y;
 
@@ -70,7 +70,7 @@ export class Entity {
     );
   }
 
-  hits(pos: Pos, size: number): boolean {
+  public hits(pos: Pos, size: number): boolean {
     const dx = pos.x - this.pos.x;
     const dy = pos.y - this.pos.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
@@ -80,14 +80,18 @@ export class Entity {
 }
 
 export class Level {
-  ctx: CanvasRenderingContext2D;
-  tickSpeed: number;
-  color: string;
-  entities: Entity[];
-  score: Record<string, number>;
-  pause: boolean;
+  protected entities: Entity[];
+  public ctx: CanvasRenderingContext2D;
+  public score: Record<string, number>;
+  public pause: boolean;
+  public color: string;
+  public tickSpeed: number;
 
-  constructor(ctx: CanvasRenderingContext2D, tickSpeed: number, color: string) {
+  public constructor(
+    ctx: CanvasRenderingContext2D,
+    tickSpeed: number,
+    color: string,
+  ) {
     this.ctx = ctx;
     this.tickSpeed = tickSpeed;
     this.color = color;
@@ -96,7 +100,7 @@ export class Level {
     this.pause = false;
   }
 
-  run(): number {
+  public run(): number {
     return setInterval(() => {
       if (this.pause) return;
 
@@ -105,7 +109,7 @@ export class Level {
     }, this.tickSpeed);
   }
 
-  tick(): void {
+  protected tick(): void {
     for (let i = this.entities.length - 1; i >= 0; i--) {
       const e = this.entities[i];
       e.tick();
@@ -116,7 +120,7 @@ export class Level {
     }
   }
 
-  discard(): void {
+  protected discard(): void {
     this.ctx.fillStyle = this.color;
     this.ctx.fillRect(
       0,
@@ -126,38 +130,39 @@ export class Level {
     );
   }
 
-  spawn(e: Entity) {
+  public spawn(e: Entity): void {
     this.entities.push(e);
   }
 
-  getEntityAt(pos: Pos) {
-    return this.entities.find((e) => e.hits(pos, 10));
+  public findEntity(f: (e: Entity) => boolean): Entity | undefined {
+    return this.entities.find(f);
   }
 }
 
 export class Player extends Entity {
-  orientation: Orientation;
-  shotSpeed: number;
-  shotProgress: number;
+  public orientation: Orientation;
+  public shotSpeed: number;
+  public shotProgress: number;
 
-  constructor(
+  public constructor(
     level: Level,
     pos: Pos,
     velocity: Vector2d,
     size: number,
     color: string,
     orientation: Orientation,
+    shotSpeed: number,
   ) {
     super(level, pos, velocity, size, color, 1);
 
     this.orientation = orientation;
-    this.shotSpeed = 0.1;
+    this.shotSpeed = shotSpeed;
     this.shotProgress = 0;
 
     this.subscribe();
   }
 
-  tick(): void {
+  public tick(): void {
     if (
       this.pos.y <= this.size ||
       this.pos.y >= this.level.ctx.canvas.clientHeight - this.size
@@ -179,7 +184,7 @@ export class Player extends Entity {
         this.size / 2,
         this.color,
         this,
-        1
+        1,
       );
       this.level.spawn(bullet);
       this.shotProgress = 0;
@@ -188,15 +193,15 @@ export class Player extends Entity {
     super.tick();
   }
 
-  subscribe() {
+  protected subscribe(): void {
     this.level.score[this.id] = 0;
   }
 }
 
 export class Bullet extends Entity {
-  player: Player;
+  protected player: Player;
 
-  constructor(
+  public constructor(
     level: Level,
     pos: Pos,
     velocity: Vector2d,
@@ -210,8 +215,8 @@ export class Bullet extends Entity {
     this.player = player;
   }
 
-  tick() {
-    const e = this.level.entities.find(
+  public tick(): void {
+    const e = this.level.findEntity(
       (e) => e instanceof Player && e.id != this.player.id,
     );
 

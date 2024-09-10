@@ -2,14 +2,15 @@ import { useEffect, useRef, useState } from "react";
 import { Level, Player, Orientation } from "./lib/core";
 import { CustomizationDialog } from "./CustomizationDialog";
 import "./App.css";
-import {Status} from "./Status";
+import { Status } from "./Status";
 
 const PLAYER_SIZE = 20;
 const PLAYER_OFFSET = 50;
 const PLAYER_VELOCITY = 7;
+const PLAYER_SHOT_SPEED = 0.1;
 const TICK_SPEED = 49;
 
-  const destroy = (intervals: number[]) => intervals.forEach(clearInterval);
+const destroy = (intervals: number[]) => intervals.forEach(clearInterval);
 
 export default function App() {
   const [score, setScore] = useState<Record<string, number>>({});
@@ -41,11 +42,15 @@ export default function App() {
     };
 
     // Prevent players from going out of bounds.
-    if (pos.y < 50 || pos.y > cvs.current.clientHeight) return;
+    if (
+      pos.y < PLAYER_OFFSET ||
+      pos.y > cvs.current.clientHeight - PLAYER_OFFSET
+    )
+      return;
 
-    const en = level.current.getEntityAt(pos);
+    const en = level.current.findEntity((e) => e.hits(pos, 10));
 
-    if (en !== undefined && en instanceof Player) {
+    if (en && en instanceof Player) {
       // Ignore input if the player already moves in the given direction.
       if (pos.y > en.pos.y) {
         if (en.velocity.y < 0) return;
@@ -65,8 +70,9 @@ export default function App() {
       y: e.clientY - rect.y,
     };
 
-    const en = level.current.getEntityAt(pos);
-    if (en !== undefined && en instanceof Player) {
+    const en = level.current.findEntity((e) => e.hits(pos, 10));
+
+    if (en && en instanceof Player) {
       player.current = en;
       setColor(en.color);
 
@@ -80,7 +86,9 @@ export default function App() {
       level.current.pause = !level.current.pause;
     }
   };
-  const statuses = Object.entries(score).map((e, i) => <Status level={level} score={e} index={i + 1} key={e[0]} />);
+  const statuses = Object.entries(score).map((e, i) => (
+    <Status level={level} score={e} index={i + 1} key={e[0]} />
+  ));
 
   useEffect(() => {
     const ctx = cvs.current!.getContext("2d");
@@ -93,6 +101,7 @@ export default function App() {
         PLAYER_SIZE,
         "#000000",
         Orientation.Right,
+        PLAYER_SHOT_SPEED,
       ),
     );
     level.current.spawn(
@@ -109,6 +118,7 @@ export default function App() {
         PLAYER_SIZE,
         "#ff0000",
         Orientation.Left,
+        PLAYER_SHOT_SPEED,
       ),
     );
 
@@ -129,16 +139,16 @@ export default function App() {
         <span className="layout-header-msg">Press &lt;Space&gt; to pause</span>
       </header>
       <main className="game">
-      {statuses[0]}
-      <canvas
-        className="graphics"
-        width="500"
-        height="500"
-        onMouseMove={onMouseMove}
-        onClick={onClick}
-        ref={cvs}
-      />
-      {statuses[1]}
+        {statuses[0]}
+        <canvas
+          className="graphics"
+          width="500"
+          height="500"
+          onMouseMove={onMouseMove}
+          onClick={onClick}
+          ref={cvs}
+        />
+        {statuses[1]}
       </main>
       <CustomizationDialog
         modal={modal}
