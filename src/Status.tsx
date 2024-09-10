@@ -1,5 +1,5 @@
 import { Controls } from "./Controls";
-import { Level } from "./lib/core";
+import { Level, Player } from "./lib/core";
 import "./Status.css";
 
 interface Props {
@@ -9,11 +9,13 @@ interface Props {
 }
 
 export function Status({ level, score, index }: Props) {
+  const player = level.current?.findEntity((e) => e.id === score[0]);
+
   return (
     <div className="status">
       <header className="status-header">Player {index}</header>
       <span>Score: {score[1]}</span>
-      <Controls level={level} player_id={score[0]} />
+      {player instanceof Player && <Controls player={player} />}
     </div>
   );
 }
